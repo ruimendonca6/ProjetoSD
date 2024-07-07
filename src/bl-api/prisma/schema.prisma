@@ -1,21 +1,20 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model Teacher {
-  name       String   @id
-  city       String
-  createdOn  DateTime @default(now()) @map("created_on")
-  updatedOn  DateTime @updatedAt @map("updated_on")
-
-  @@map("teachers")
+generator client {
+  provider = "prisma-client-js"
 }
 
+model HistoricalEvent {
+  id           Int      @id @default(autoincrement())
+  date         String
+  description  String
+  lang         String
+  category1    String
+  category2    String
+  granularity  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
