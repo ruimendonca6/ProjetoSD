@@ -9,7 +9,9 @@ describe('HistoricalEventController', () => {
       controllers: [HistoricalEventController],
     }).compile();
 
-    controller = module.get<HistoricalEventController>(HistoricalEventController);
+    controller = module.get<HistoricalEventController>(
+      HistoricalEventController,
+    );
   });
 
   it('should be defined', () => {

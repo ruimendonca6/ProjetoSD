@@ -19,7 +19,7 @@ export class HistoricalEventController {
 
   @Post()
   create(@Body() createHistoricalEventDto: CreateHistoricalEventDto) {
-    console.log('Received POST request:', createHistoricalEventDto); // Log para depuração
+    console.log('Received POST request:', createHistoricalEventDto);
     return this.historicalEventService.create(createHistoricalEventDto);
   }
 

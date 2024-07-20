@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 export class UpdateHistoricalEventDto {
   date?: string;
   description?: string;
