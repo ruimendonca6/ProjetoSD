@@ -8,13 +8,13 @@ generator client {
 }
 
 model HistoricalEvent {
-  id           Int      @id @default(autoincrement())
-  date         String
-  description  String
-  lang         String
-  category1    String
-  category2    String
-  granularity  String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  date        String
+  description String
+  lang        String
+  category1   String
+  category2   String
+  granularity String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

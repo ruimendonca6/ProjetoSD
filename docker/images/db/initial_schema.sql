@@ -1,10 +1,23 @@
-/* Sample table and data that we can insert once the database is created for the first time */
-CREATE TABLE public.teachers (
-	name    VARCHAR (100),
-	city    VARCHAR(100),
-	created_on      TIMESTAMP NOT NULL DEFAULT NOW(),
-	updated_on      TIMESTAMP NOT NULL DEFAULT NOW()
+
+CREATE TABLE user (
+    user        VARCHAR(100),
+    email       VARCHAR(255),
+    password    VARCHAR(255),
+    roles       VARCHAR(255), 
+    created_on  TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_on  TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-INSERT INTO teachers(name, city) VALUES('Luís Teófilo', 'Porto');
-INSERT INTO teachers(name, city) VALUES('Ricardo Castro', 'Braga');
+CREATE TABLE HistoricalEvent (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    date         VARCHAR(255) NOT NULL,
+    description  VARCHAR(255) NOT NULL,
+    lang         VARCHAR(50) NOT NULL,
+    category1    VARCHAR(100) NOT NULL,
+    category2    VARCHAR(100) NOT NULL,
+    granularity  VARCHAR(50) NOT NULL,
+    createdAt    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
