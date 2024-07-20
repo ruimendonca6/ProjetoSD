@@ -1,13 +1,13 @@
 const express = require("express");
 const cors = require("cors");
-const knexConfig = require("./knexfile").db;
+const knexConfig = require("./knexfile").development;
 const knex = require("knex")(knexConfig);
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
+const crypto = require("crypto");
 
 const app = express();
-const SECRET_KEY = "your_secret_key"; // Use uma chave segura e mantenha-a em segredo
+const SECRET_KEY = "your_secret_key";
 
 // Middlewares
 app.use(cookieParser());
@@ -36,33 +36,41 @@ const authenticateToken = (req, res, next) => {
 // Middleware para autorização (exemplo: somente admin)
 const authorize = (role) => {
   return (req, res, next) => {
-    if (req.user.permission !== role) {
+    if (!req.user || !req.user[role]) {
       return res.sendStatus(403);
     }
     next();
   };
 };
 
+// Função para criptografar a senha
+const hashPassword = (password) => {
+  return crypto.createHash("sha256").update(password).digest("hex");
+};
+
 // Rota de login
 app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-
-  if (!username || !password) {
-    return res
-      .status(400)
-      .json({ message: "Username and password are required" });
-  }
-
   try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res
+        .status(400)
+        .json({ message: "Username and password are required" });
+    }
+
     const user = await knex("users").where({ username }).first();
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    const hashedPassword = hashPassword(password);
+
+    if (!user || user.password !== hashedPassword) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ permission: user.permission }, SECRET_KEY, {
-      expiresIn: "1d",
-      subject: user.id.toString(),
-    });
+    const token = jwt.sign(
+      { View: user.View, Edit: user.Edit, Admin: user.Admin },
+      SECRET_KEY,
+      { expiresIn: "1d", subject: user.id.toString() }
+    );
     res.cookie("token", token, { httpOnly: true });
     res.json({ message: "Login successfully" });
   } catch (error) {
@@ -71,19 +79,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Rota para obter professores
-app.get("/teachers", authenticateToken, async (req, res) => {
-  try {
-    const teachers = await knex.select("*").from("teachers");
-    res.json(teachers);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error retrieving data");
-  }
-});
-
-// Rota para obter usuários (somente admin)
-app.get("/users", authenticateToken, authorize("admin"), async (req, res) => {
+app.get("/users", authenticateToken, authorize("Admin"), async (req, res) => {
   try {
     const users = await knex.select("*").from("users");
     res.json(users);
@@ -93,22 +89,30 @@ app.get("/users", authenticateToken, authorize("admin"), async (req, res) => {
   }
 });
 
-// Rota para adicionar usuário
-app.post("/adduser", async (req, res) => {
-  const { username, password, permission = "view" } = req.body;
-
-  if (!username || !password) {
-    return res
-      .status(400)
-      .json({ message: "Username and password are required" });
-  }
-
+app.post("/register", async (req, res) => {
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const {
+      username,
+      password,
+      View = false,
+      Edit = false,
+      Admin = false,
+    } = req.body;
+
+    if (!username || !password) {
+      return res
+        .status(400)
+        .json({ message: "Username and password are required" });
+    }
+
+    const hashedPassword = hashPassword(password);
+
     await knex("users").insert({
       username,
       password: hashedPassword,
-      permission,
+      View,
+      Edit,
+      Admin,
     });
     res.sendStatus(201);
   } catch (error) {
@@ -117,26 +121,41 @@ app.post("/adduser", async (req, res) => {
   }
 });
 
-// Rota para atualizar usuário
 app.put(
   "/users/:id",
   authenticateToken,
-  authorize("admin"),
+  authorize("Admin"),
   async (req, res) => {
-    const { id } = req.params;
-    const { username, password, permission } = req.body;
-
-    if (!username || !password) {
-      return res
-        .status(400)
-        .json({ message: "Username and password are required" });
-    }
-
     try {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      await knex("users")
-        .where({ id })
-        .update({ username, password: hashedPassword, permission });
+      const { id } = req.params;
+      const { username, password, View, Edit, Admin } = req.body;
+
+      if (!Number.isInteger(Number(id))) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      if (
+        !username ||
+        !password ||
+        typeof View !== "boolean" ||
+        typeof Edit !== "boolean" ||
+        typeof Admin !== "boolean"
+      ) {
+        return res.status(400).json({
+          message: "Username, password, and permissions (boolean) are required",
+        });
+      }
+
+      const hashedPassword = hashPassword(password);
+
+      await knex("users").where({ id }).update({
+        username,
+        password: hashedPassword,
+        View,
+        Edit,
+        Admin,
+      });
+
       res.sendStatus(200);
     } catch (error) {
       console.error(error);
@@ -145,16 +164,20 @@ app.put(
   }
 );
 
-// Rota para deletar usuário
 app.delete(
   "/users/:id",
   authenticateToken,
-  authorize("admin"),
+  authorize("Admin"),
   async (req, res) => {
-    const { id } = req.params;
-
     try {
+      const { id } = req.params;
+
+      if (!Number.isInteger(Number(id))) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
       await knex("users").where({ id }).del();
+
       res.sendStatus(200);
     } catch (error) {
       console.error(error);
