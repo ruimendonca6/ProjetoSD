@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './../../prisma/prisma.service';
 import { CreateHistoricalEventDto } from './dto/create-historical-event.dto';
@@ -8,7 +9,7 @@ export class HistoricalEventService {
   constructor(private prisma: PrismaService) {}
 
   async create(data: CreateHistoricalEventDto) {
-    console.log('Creating Historical Event:', data); // Log para depuração
+    console.log('Creating Historical Event:', data);
     return this.prisma.historicalEvent.create({ data });
   }
 

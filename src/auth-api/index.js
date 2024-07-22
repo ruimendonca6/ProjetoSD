@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const knexConfig = require("./knexfile").development;
@@ -7,7 +9,7 @@ const cookieParser = require("cookie-parser");
 const crypto = require("crypto");
 
 const app = express();
-const SECRET_KEY = "your_secret_key";
+const SECRET_KEY = process.env.SECRET_KEY;
 
 // Middlewares
 app.use(cookieParser());
@@ -33,7 +35,7 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Middleware para autorização (exemplo: somente admin)
+// Middleware de autorização
 const authorize = (role) => {
   return (req, res, next) => {
     if (!req.user || !req.user[role]) {
@@ -43,7 +45,7 @@ const authorize = (role) => {
   };
 };
 
-// Função para criptografar a senha
+// SHA256
 const hashPassword = (password) => {
   return crypto.createHash("sha256").update(password).digest("hex");
 };
