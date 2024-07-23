@@ -45,11 +45,9 @@ services:
       - ./src/bl-api:/app
     ports:
       - "$BL_API_PORT:8080"
-      - "$SWAGGER_PORT:8080"
     environment:
       - USE_DEV_MODE
       - PORT=8080
-      - SWAGGER_PORT=8080
       - DATABASE_URL=postgresql://sd:sd@bl-db:5432/sd?schema=public
 
   importer:
@@ -88,3 +86,5 @@ networks:
 volumes:
   auth_data:
   bl_data:
+
+
