@@ -9,21 +9,20 @@ import { Logger } from '@nestjs/common';
 dotenv.config();
 
 async function bootstrap() {
-  const apiPort = process.env.BL_API_PORT || 8080;
+  const blPort = process.env.BL_API_PORT || 8080;
   const authPort = process.env.AUTH_API_PORT || 18080;
   const swaggerPort = process.env.SWAGGER_PORT || 8081;
 
   try {
-    // Start the main API server
     const app = await NestFactory.create(AppModule, { cors: true });
     app.use(cookieParser());
     app.enableCors();
-    await app.listen(apiPort, () => {
-      const addressBL = `http://localhost:${apiPort}`;
+    await app.listen(blPort, () => {
+      const addressBL = `http://localhost:${blPort}`;
       Logger.log(`API server is running on ${addressBL}`);
     });
 
-    // Start the auth server
+  
     const authApp = await NestFactory.create(AppModule, { cors: true });
     authApp.use(cookieParser());
     authApp.enableCors();
@@ -32,7 +31,7 @@ async function bootstrap() {
       Logger.log(`Auth server is running on ${authAddress}`);
     });
 
-    // Start the Swagger server
+   
     const swaggerApp = await NestFactory.create(AppModule, { cors: true });
     swaggerApp.use(cookieParser());
     swaggerApp.enableCors();

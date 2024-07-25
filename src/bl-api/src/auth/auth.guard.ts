@@ -19,7 +19,7 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const roles = this.reflector.get<string[]>(ROLES_KEY, context.getHandler());
     const request = context.switchToHttp().getRequest();
-    const token = request.cookies['token']; // Extrair o token dos cookies
+    const token = request.cookies['token']; 
 
     if (!token) {
       throw new UnauthorizedException('No token provided');
@@ -33,7 +33,6 @@ export class AuthGuard implements CanActivate {
       request.user = decoded;
 
       if (roles && roles.length > 0) {
-        // Verifique se o usuário possui pelo menos um dos papéis necessários
         const hasRole = roles.some((role) => decoded[role] === true);
         if (!hasRole) {
           throw new UnauthorizedException('Insufficient permissions');

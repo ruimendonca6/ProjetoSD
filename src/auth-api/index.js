@@ -50,7 +50,7 @@ const hashPassword = (password) => {
   return crypto.createHash("sha256").update(password).digest("hex");
 };
 
-// Rota de login
+// LOGIN
 app.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -81,6 +81,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
+//GET ALL users
 app.get("/users", authenticateToken, authorize("Admin"), async (req, res) => {
   try {
     const users = await knex.select("*").from("users");
@@ -91,6 +92,7 @@ app.get("/users", authenticateToken, authorize("Admin"), async (req, res) => {
   }
 });
 
+//POST registar novo utilizador
 app.post("/register", async (req, res) => {
   try {
     const {
@@ -123,6 +125,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
+//PUT editar utilizador
 app.put(
   "/users/:id",
   authenticateToken,
@@ -166,6 +169,7 @@ app.put(
   }
 );
 
+//DELETE user
 app.delete(
   "/users/:id",
   authenticateToken,

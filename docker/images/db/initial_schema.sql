@@ -1,7 +1,6 @@
 
 CREATE TABLE user (
     user        VARCHAR(100),
-    email       VARCHAR(255),
     password    VARCHAR(255),
     roles       VARCHAR(255), 
     created_on  TIMESTAMP NOT NULL DEFAULT NOW(),

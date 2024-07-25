@@ -69,7 +69,7 @@ const JSONObserver = {
   },
 };
 
-// Application Module
+
 const ImporterApplication = {
   start: function () {
     JSONObserver.list();
@@ -77,5 +77,5 @@ const ImporterApplication = {
   },
 };
 
-// Start the application
+
 ImporterApplication.start();
